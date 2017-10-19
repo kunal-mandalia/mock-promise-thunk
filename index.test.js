@@ -49,9 +49,8 @@ describe(`mock-promise-thunk`, () => {
 
     // define the shape of your values depending on how your async library outputs values
     //  e.g. axios wraps up output in a data object
-    const comment = `You rock dude`
-    const successValue = { data: comment }
-    const errorValue = 400
+    // const successValue = { data: comment }
+    // const errorValue = 400
     const mockDispatch = mockDispatchWrapper()
     
     beforeEach(() => {
@@ -59,28 +58,30 @@ describe(`mock-promise-thunk`, () => {
     })
 
     it(`should dispatch success actions chain on success`, () => {
-      // define the then / catch calls the promise should make
-      //  since we're testing against the success case there's
-      //  at least one action which'll be resolved and none rejected
-      const thenStack = [createCommentSuccess(comment)]
-      const catchStack = []
-      // Since we're mocking a post request, wrap the promise in a post object
-      const mp = { post: mockPromise(thenStack, catchStack, successValue, errorValue) }
+      // define the action stack resulting from the calls of the .then
+      //  or .catch calls of the promise
+      //  { response: any } will invoke .then, error will invoke .catch
+      //  when the promise is resolved (instantly)
+      //  
+      const comment = `You rock dude`
+      const actionStack = [ { response: { data: comment } }]
 
-      // call action we want to test and track calls in mockDispatch
-      createComment(comment, mp)(mockDispatch)
+      // Since we're mocking a post request, wrap the promise in a post object
+      const mockXHRLib = { post: mockPromise(actionStack) }
+
+      // call the action we want to test and track calls in mockDispatch
+      createComment(comment, mockXHRLib)(mockDispatch)
       expect(mockDispatch().calls()).toHaveLength(2)
       expect(mockDispatch().calls()).toEqual([createCommentRequest(comment), createCommentSuccess(comment)])
     })
 
     it(`should dispatch error actions chain on catch`, () => {
-      // No then actions as this mock promise won't resolve
-      //  but rather catch once
-      const thenStack = []
-      const catchStack = [createCommentError(errorValue)]
-      const mp = { post: mockPromise(thenStack, catchStack, successValue, errorValue) }
+      const comment = `You rock dude`
+      const errorValue = 'bad request'
+      const actionStack = [{ error: errorValue}]
+      const mockXHRLib = { post: mockPromise(actionStack) }
 
-      createComment(comment, mp)(mockDispatch)
+      createComment(comment, mockXHRLib)(mockDispatch)
       expect(mockDispatch().calls()).toHaveLength(2)
       expect(mockDispatch().calls()).toEqual([createCommentRequest(comment), createCommentError(errorValue)])
     })
