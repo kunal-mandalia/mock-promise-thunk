@@ -27,27 +27,20 @@ const createComment = (comment, axios) => {
 In our test:
 ```
 it(`should dispatch success actions chain on success`, () => {
-  // define the shape of your values depending on how your async library outputs values
-  //  e.g. axios wraps up output in a data object
+  // define the action stack resulting from the calls of the .then
+  //  or .catch calls of the promise
+  //  { response: any } will invoke .then, error will invoke .catch
+  //  when the promise is resolved (instantly)
+  //  
   const comment = `You rock dude`
-  const successValue = { data: comment }
-  const errorValue = 400
-  const mockDispatch = mockDispatchWrapper()
+  const actionStack = [ { response: { data: comment } }]
 
-  // define the then / catch calls the promise should make
-  //  since we're testing against the success case there's
-  //  at least one action which'll be resolved and none rejected
-  const thenStack = [createCommentSuccess(comment)]
-  const catchStack = []
   // Since we're mocking a post request, wrap the promise in a post object
-  const mp = { post: mockPromise(thenStack, catchStack, successValue, errorValue) }
+  const mockXHRLib = { post: mockPromise(actionStack) }
 
-  // call action we want to test and track calls in mockDispatch
-  createComment(comment, mp)(mockDispatch)
+  // call the action we want to test and track calls in mockDispatch
+  createComment(comment, mockXHRLib)(mockDispatch)
   expect(mockDispatch().calls()).toHaveLength(2)
   expect(mockDispatch().calls()).toEqual([createCommentRequest(comment), createCommentSuccess(comment)])
-
-  // clear all mockDispatch calls
-  mockDispatch().clear()
 })
 ```
