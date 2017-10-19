@@ -27,9 +27,9 @@ const mockPromise = (thenStack = [], catchStack = [], successValue = 200, errorV
 /**
  * Serves as a mockFn similar to jest.fn()
  */
-const dispatchWrapper = () => {
+const mockDispatchWrapper = () => {
 	let actions = []
-  return function dispatch (action) {
+  return function mockDispatch (action) {
   	if (action) actions.push(action)
     return {
     	calls: () => { return actions },
@@ -40,5 +40,5 @@ const dispatchWrapper = () => {
 
 module.exports = {
   mockPromise,
-  dispatchWrapper
+  mockDispatchWrapper
 }
