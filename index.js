@@ -8,7 +8,7 @@ const mockPromise = (actionStack = []) => {
   let stack = actionStack.slice()
 
   return () => {
-  	return {
+    return {
       then: function (cb) {
         if (stack.length > 0 && stack[0].response) cb(stack.shift().response)
         return this
@@ -25,11 +25,11 @@ const mockPromise = (actionStack = []) => {
  * Serves as a mockFn similar to jest.fn()
  */
 const mockDispatchWrapper = () => {
-	let actions = []
+  let actions = []
   return function mockDispatch (action) {
-  	if (action) actions.push(action)
+    if (action) actions.push(action)
     return {
-    	calls: () => { return actions },
+      calls: () => { return actions },
       clear: () => { actions = [] }
     }
   }
