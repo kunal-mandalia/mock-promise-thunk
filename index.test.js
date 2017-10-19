@@ -1,4 +1,4 @@
-const { mockPromise, dispatchWrapper } = require('./index')
+const { mockPromise, mockDispatchWrapper } = require('./index')
 
 describe(`mock-promise-thunk`, () => {
   describe(`mockPromise()`, () => {
@@ -14,7 +14,7 @@ describe(`mock-promise-thunk`, () => {
   })
 
   describe(`dispatchWrapper()`, () => {
-    const mockDispatch = dispatchWrapper()
+    const mockDispatch = mockDispatchWrapper()
     it(`should track calls`, () => {
       mockDispatch('a')
       expect(mockDispatch().calls()).toEqual(['a'])
@@ -52,7 +52,7 @@ describe(`mock-promise-thunk`, () => {
     const comment = `You rock dude`
     const successValue = { data: comment }
     const errorValue = 400
-    const mockDispatch = dispatchWrapper()
+    const mockDispatch = mockDispatchWrapper()
     
     beforeEach(() => {
       mockDispatch().clear()
