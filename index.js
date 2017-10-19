@@ -2,22 +2,19 @@
  * See tests on how to use this function to mock e.g. redux thunk async
  *  actions
  * 
- * @param {Array} thenStack actions called on resolve
- * @param {Array} catchStack actions called on reject
- * @param {*} successValue: resolve callback arg
- * @param {*} errorValue: reject callback arg
+ * @param {Array} actionStack of object { response? any, error? any }
  */
-const mockPromise = (thenStack = [], catchStack = [], successValue = 200, errorValue = 400) => {
-	let thenStackCopy = thenStack.slice()
-  let catchStackCopy = catchStack.slice()
+const mockPromise = (actionStack = []) => {
+  let stack = actionStack.slice()
+
   return () => {
   	return {
       then: function (cb) {
-        if (thenStackCopy.length > 0) cb(successValue)
+        if (stack.length > 0 && stack[0].response) cb(stack.shift().response)
         return this
-        },
+      },
       catch: function (cb) {
-        if (catchStack.length > 0) cb(errorValue)
+        if (stack.length > 0 && stack[0].error) cb(stack.shift().error)
         return this
       }
     }
