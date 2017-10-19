@@ -47,10 +47,8 @@ describe(`mock-promise-thunk`, () => {
       }
     }
 
-    // define the shape of your values depending on how your async library outputs values
-    //  e.g. axios wraps up output in a data object
-    // const successValue = { data: comment }
-    // const errorValue = 400
+    // track dispatch calls using mockDispatch
+    //  alternatively use jest.fn()
     const mockDispatch = mockDispatchWrapper()
     
     beforeEach(() => {
