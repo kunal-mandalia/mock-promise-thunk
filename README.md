@@ -1,4 +1,4 @@
-# mock-promise-thunk
+# mock-promise-thunk [![CircleCI](https://circleci.com/gh/kunal-mandalia/mock-promise-thunk.svg?style=svg)](https://circleci.com/gh/kunal-mandalia/mock-promise-thunk)
 
 Test your redux thunk promises.
 
