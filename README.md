@@ -6,7 +6,7 @@ Test your redux thunk promises.
 1. Install `yarn add mock-promise-thunk`
 2. Import with ES6 modules `import { mockPromise, mockDispatchWrapper } from 'mock-promise-thunk' or `const { mockPromise, mockDispatchWrapper } = require('mock-promise-thunk')` with node modules
 
-## Example
+## Example: axios post
 
 Suppose we have the async thunk action `createComment` which fires a request action immediately followed by either a success or error action depending on whether the async call resolved or was rejected:
 
@@ -49,4 +49,54 @@ it(`should dispatch success actions chain on success`, () => {
   expect(mockDispatch().calls()).toHaveLength(2)
   expect(mockDispatch().calls()).toEqual([createCommentRequest(comment), createCommentSuccess(comment)])
 })
+```
+## Example: AsyncStorage (React-Native) getItem and jest.fn()
+
+Suppose we have a getDecks thunk in `actions.js`
+
+```
+import * as c from './constants'
+import { AsyncStorage } from 'react-native'
+
+/**
+ * storage variable is used as dependency
+ *  injection so it can be mocked for testing
+ */
+export const getDecksRequest = () => ({ type: c.GET_DECKS_REQUEST })
+export const getDecksSuccess = (decks) => ({ type: c.GET_DECKS_SUCCESS, value: decks })
+export const getDecksError = (error) => ({ type: c.GET_DECKS_ERROR, error })
+export const getDecks = (storage = AsyncStorage) => {
+  return (dispatch) => {
+    dispatch(getDecksRequest())
+    storage.getItem(c.ASYNC_STORAGE_DECKS_KEY)
+    .then((response) => {
+      dispatch(getDecksSuccess(response))
+    })
+    .catch((error) => {
+      dispatch(getDecksError(error))
+    })
+  }
+}
+```
+
+Here's how we can mock and test the call to AsyncStorage in `actions.test.js`:
+
+```
+import * as actions from './actions'
+import { mockPromise } from 'mock-promise-thunk'
+
+describe(`actions`, () => {
+  describe(`getDecks`, () => {
+    it(`should dispatch request and success actions on resolve`, () => {
+      const mockDispatch = jest.fn()      
+      const decks = { 'History': { title: 'History' }}
+      const actionStack = [{ response: decks }]
+      const mockPromiseLib = { getItem: mockPromise(actionStack) }
+      actions.getDecks(mockPromiseLib)(mockDispatch)
+
+      expect(mockDispatch.mock.calls[0][0]).toEqual(actions.getDecksRequest())
+      expect(mockDispatch.mock.calls[1][0]).toEqual(actions.getDecksSuccess(decks))
+      expect(mockDispatch.mock.calls.length).toEqual(2)
+    }) 
+  })
 ```
